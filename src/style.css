@@ -1,0 +1,14 @@
+.table_students{
+    display: table-cell;
+    border-collapse: collapse;
+}
+.table_students__row{
+    display: table-row;
+}
+.row__data{
+    display: table-cell;
+    border: 1px solid black;
+}
+.current_row{
+    border: 2px solid darkred;
+}
