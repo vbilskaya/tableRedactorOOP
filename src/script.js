@@ -75,6 +75,7 @@ class Table {
             let td = document.createElement('div');//change to div
             td.classList.add(studentKeys[i]);
             td.classList.add('row__data');
+            td.setAttribute('tabindex', '1');
             row.appendChild(td);
         }
 
@@ -186,16 +187,6 @@ function onAddButtonClick() {
     let table = document.querySelector('.table_students');
 
     if(tableExemplar.currentRow === null){
-        //table.appendChild(tableExemplar.createRow(tableExemplar.tableRows[0]));
-        // let clone = {};
-        // for(let key in tableExemplar.tableRows[0]){
-        //     clone[key]=tableExemplar.tableRows[0][key];
-        // }
-        // for(let key in clone){
-        //     clone[key]='';
-        // }
-        // clone['id']= tableExemplar.lastRowIndex+1;
-        // console.log(clone);
         let clone = makeDataClone();
         let newRow = tableExemplar.createRow(clone);//
         tableExemplar.tableRows.push(clone);
@@ -264,7 +255,10 @@ function onRemoveButtonClick() {
 }
 
 function onSaveButtonClick() {
-
+    let newTableData = {students:[]};
+    newTableData.students = tableExemplar.tableRows;
+    let newJson = JSON.stringify(newTableData);
+    console.log(newJson);
 }
 
 function onCellBlurSaveChanges(event) {
