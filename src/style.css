@@ -7,8 +7,30 @@
 }
 .row__data{
     display: table-cell;
-    border: 1px solid black;
+    border: 2px solid darkslategrey;
+    min-width: 100px;
+    min-height: 30px;
+    font-size: large;
+    font-family: Arial;
+    text-align: center;
 }
 .current_row{
     border: 2px solid darkred;
+    background-color:  #FADECC;
+}
+
+.row-number, .id, .number{
+    max-width: 40px;
+}
+
+.column-header, .row-number{
+    background-color: #FBA37E;
+}
+button{
+    width: 150px;
+    height: 50px;
+    font-size: large;
+    background-color: #DC6F41;
+    border-radius: 10px;
+    margin: 20px;
 }
