@@ -26,19 +26,10 @@ class Table {
         this.lastRowIndex = 0;
     }
 
-    transformJsonDataIntoTable() {
-
-    }
-
     createTable() {//создание элемента div для дальнейшего заполнения строками
         let table = document.createElement('div');
         table.classList.add('table_students');
         document.body.appendChild(table);
-        console.log('Создан контейнер для таблицы');
-    }
-
-    renderTableRow() {
-
     }
 
     renderTableHeadRow() {
@@ -63,10 +54,6 @@ class Table {
         }
 
         table.appendChild(row);
-    }
-
-    deleteRow() {
-
     }
 
     createRow(element) {
@@ -143,7 +130,6 @@ class Table {
         arr.push(student);
         this.tableRows = this.tableRows.concat(arr);
         this.rowsCount++;
-        // console.log(student);
     }
 
     makeCellEditable(target) {
@@ -257,7 +243,6 @@ function onRemoveButtonClick() {
             if (id == tableExemplar.tableRows[i]['id']) {
                 table.removeChild(tableExemplar.currentRow);
                 tableExemplar.tableRows.splice(i, 1);
-                //console.log('student with id = ' + id + ' was removed');
             }
         }
     }
@@ -366,7 +351,6 @@ function onTableClick(event) {
                 tableExemplar.currentRow = target;
                 tableExemplar.currentRow.classList.add('current_row');
             }
-            //target.addEventListener('blur', onCurrentRowBlur);
         }
 
         target = target.parentNode;
@@ -376,7 +360,6 @@ function onTableClick(event) {
 
 function onColumnHeaderClick(event) {
     let sortColumn = event.target.classList[2];
-    console.log(sortColumn);
     switch (sortColumn) {
         case 'name':
         case 'surname':
@@ -450,4 +433,3 @@ function swap(id1, id2) {
         }
     }
 }
-
