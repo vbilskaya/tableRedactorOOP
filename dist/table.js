@@ -31,7 +31,7 @@ var Table = function () {
         key: 'deleteRow',
         value: function deleteRow() {}
     }, {
-        key: 'fillTableRowsProperty',
+        key: 'createRow',
         value: function createRow() {}
     }]);
 
