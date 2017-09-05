@@ -10,10 +10,6 @@ class JsonObj {
         return data;
     }
 
-    set jsonData(newData) {
-
-    }
-
 }
 
 class Table {
@@ -139,6 +135,110 @@ class Table {
         target.addEventListener('blur', onCellBlurSaveChanges);
     }
 
+    makeDataClone(){
+        let clone = {};
+        for (let key in this.tableRows[0]) {
+            clone[key] = this.tableRows[0][key];
+        }
+        for (let key in clone) {
+            clone[key] = '';
+        }
+        clone['id'] = this.lastRowIndex + 1;
+        return clone;
+    }
+
+    sortData(sortColumn, dataType) {
+        let column = [];
+        for (let i = 0; i < this.tableRows.length; i++) {
+            let dataValue = this.tableRows[i][sortColumn];
+            let id = this.tableRows[i]['id'];
+            let student = [id, dataValue];
+            column.push(student);
+        }
+
+        if (dataType === 'numeric') {
+
+            column.sort(this.compareNumeric.bind(this));
+
+        } else {
+
+            column.sort(this.compareString.bind(this));
+
+        }
+        this.fillTableNumeration();
+    }
+
+    compareNumeric(a, b) {
+        let result;
+        if (+a[1] > +b[1]) result = 1;
+        else if (+a[1] < +b[1]) result = -1;
+        else result = 0;
+        if (result > 0) {
+            this.swap(a[0], b[0]);
+        }
+        return result;
+    }
+
+    compareString(a, b) {
+        let result;
+        if (a[1] > b[1]) result = 1;
+        else if (a[1] < b[1]) result = -1;
+        else result = 0;
+        if (result > 0) {
+            this.swap(a[0], b[0]);
+        }
+        return result;
+    }
+
+    swap(id1, id2) {
+        let table = document.querySelector('.table_students');
+        for (let i = 0; i < this.tableRows.length; i++) {
+            if (this.tableRows[i]['id'] === id1) {
+                //меняем местами элементы массива
+                let elem1 = this.tableRows[i];
+                let elem2 = this.tableRows[i + 1];
+                this.tableRows[i] = elem2;
+                this.tableRows[i + 1] = elem1;
+                //меняем местами строки
+                let row1 = document.getElementById(id1);
+                let row2 = document.getElementById(id2);
+                table.insertBefore(row2, row1);
+                return;
+            }
+        }
+    }
+
+    checkData(type, value) {
+
+        if (type === 'string') {
+            let arrChars = value.split('');
+            for (let i = 0; i < arrChars.length; i++) {
+                if (value.charCodeAt(i) < 65) {
+                    return false;
+                }
+            }
+
+        } else if (type === 'numeric') {
+            if (isNaN(value)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+class Button{
+    constructor(name, eventListener){
+        this.name = name;
+        this.eventListener = eventListener;
+    }
+    createButton(){
+        let button = document.createElement('button');
+        button.setAttribute('id', this.name);
+        button.innerHTML = this.name;
+        document.body.appendChild(button);
+        button.addEventListener('click', this.eventListener);
+    }
 }
 
 let jsonStudents = new JsonObj();
@@ -163,26 +263,23 @@ tableExemplar.tableRows.forEach(function (elem) {
 });
 
 tableExemplar.fillTableNumeration();
+//создание кнопок
+let addButton = new Button('add', onAddButtonClick);
+addButton.createButton();
 
-//создание кнопок добавить, удалить, сохранить и их обработчики
-function createButton(name, eventListener) {
-    let button = document.createElement('button');
-    button.setAttribute('id', name);
-    button.innerHTML = name;
-    document.body.appendChild(button);
-    button.addEventListener('click', eventListener);
-}
+let removeButton = new Button('remove', onRemoveButtonClick);
+removeButton.createButton();
 
-createButton('add', onAddButtonClick);
-createButton('remove', onRemoveButtonClick);
-createButton('save', onSaveButtonClick);
+let saveButton = new Button('save', onSaveButtonClick);
+saveButton.createButton();
 
+//обработчики событий
 function onAddButtonClick() {
 
     let table = document.querySelector('.table_students');
 
     if (tableExemplar.currentRow === null) {
-        let clone = makeDataClone();
+        let clone =  tableExemplar.makeDataClone();
         let newRow = tableExemplar.createRow(clone);//
         tableExemplar.tableRows.push(clone);
         table.appendChild(newRow);
@@ -192,7 +289,7 @@ function onAddButtonClick() {
         let id = tableExemplar.currentRow.id;
         for (let i = 0; i < tableExemplar.tableRows.length; i++) {
             if (id == tableExemplar.tableRows[i]['id']) {
-                let clone = makeDataClone();
+                let clone = tableExemplar.makeDataClone();
                 let newRow = tableExemplar.createRow(clone);
                 tableExemplar.tableRows.splice(i, 0, clone);
                 table.insertBefore(newRow, document.getElementById(id));
@@ -211,18 +308,6 @@ function onAddButtonClick() {
 
     tableExemplar.fillTableNumeration();
 
-}
-
-function makeDataClone() {
-    let clone = {};
-    for (let key in tableExemplar.tableRows[0]) {
-        clone[key] = tableExemplar.tableRows[0][key];
-    }
-    for (let key in clone) {
-        clone[key] = '';
-    }
-    clone['id'] = tableExemplar.lastRowIndex + 1;
-    return clone;
 }
 
 function onRemoveButtonClick() {
@@ -282,39 +367,17 @@ function onCellBlurCheckData(event) {
     switch (dataType) {
         case 'name':
         case 'surname':
-            result = checkData('string', newValue);
+            result = tableExemplar.checkData('string', newValue);
             if (!result) alert("В это поле необходимо ввести строковое значение.");
             break;
 
         default:
-            result = checkData('numeric', newValue);
+            result = tableExemplar.checkData('numeric', newValue);
             if (!result) alert("В это поле необходимо ввести числовое значение.");
             break;
 
     }
-    // if (!result){
-    //
-    //     tableExemplar.editableCell = target;
-    //     tableExemplar.editableCell.focus();
-    // }
-}
 
-function checkData(type, value) {
-
-    if (type === 'string') {
-        let arrChars = value.split('');
-        for (let i = 0; i < arrChars.length; i++) {
-            if (value.charCodeAt(i) < 65) {
-                return false;
-            }
-        }
-
-    } else if (type === 'numeric') {
-        if (isNaN(value)) {
-            return false;
-        }
-    }
-    return true;
 }
 
 function onTableClick(event) {
@@ -329,15 +392,6 @@ function onTableClick(event) {
         }
 
         if (target.classList.contains('row__data') && !target.classList.contains('id') && !target.classList.contains('row-number') && !target.classList.contains('column-header')) {
-            // if (tableExemplar.editableCell === 0) {
-            //     tableExemplar.makeCellEditable(target);
-            //     //target.addEventListener('blur', onCellBlurSaveChanges);
-            //     //return;
-            // } else {
-            //     tableExemplar.editableCell.removeAttribute('contenteditable');
-            //     tableExemplar.makeCellEditable(target);
-            //     //target.addEventListener('blur', onCellBlurSaveChanges);
-            // }
             target.addEventListener('blur', onCellBlurCheckData);
             target.addEventListener('blur', onCellBlurSaveChanges);
         }
@@ -345,7 +399,7 @@ function onTableClick(event) {
             if (tableExemplar.currentRow === null) {
                 tableExemplar.currentRow = target;
                 tableExemplar.currentRow.classList.add('current_row');
-                //return;
+
             } else {
                 tableExemplar.currentRow.classList.remove('current_row');
                 tableExemplar.currentRow = target;
@@ -363,73 +417,12 @@ function onColumnHeaderClick(event) {
     switch (sortColumn) {
         case 'name':
         case 'surname':
-            sortData(sortColumn, 'string');
+           tableExemplar.sortData(sortColumn, 'string');
             break;
 
         default:
-            sortData(sortColumn, 'numeric');
+            tableExemplar.sortData(sortColumn, 'numeric');
             break;
 
-    }
-}
-
-function sortData(sortColumn, dataType) {
-    let column = [];
-    for (let i = 0; i < tableExemplar.tableRows.length; i++) {
-        let dataValue = tableExemplar.tableRows[i][sortColumn];
-        let id = tableExemplar.tableRows[i]['id'];
-        let student = [id, dataValue];
-        column.push(student);
-    }
-
-    if (dataType === 'numeric') {
-
-        column.sort(compareNumeric);
-
-    } else {
-
-        column.sort(compareString);
-
-    }
-    tableExemplar.fillTableNumeration();
-}
-
-function compareNumeric(a, b) {
-    let result;
-    if (+a[1] > +b[1]) result = 1;
-    else if (+a[1] < +b[1]) result = -1;
-    else result = 0;
-    if (result > 0) {
-        swap(a[0], b[0]);
-    }
-    return result;
-}
-
-function compareString(a, b) {
-    let result;
-    if (a[1] > b[1]) result = 1;
-    else if (a[1] < b[1]) result = -1;
-    else result = 0;
-    if (result > 0) {
-        swap(a[0], b[0]);
-    }
-    return result;
-}
-
-function swap(id1, id2) {
-    let table = document.querySelector('.table_students');
-    for (let i = 0; i < tableExemplar.tableRows.length; i++) {
-        if (tableExemplar.tableRows[i]['id'] === id1) {
-            //меняем местами элементы массива
-            let elem1 = tableExemplar.tableRows[i];
-            let elem2 = tableExemplar.tableRows[i + 1];
-            tableExemplar.tableRows[i] = elem2;
-            tableExemplar.tableRows[i + 1] = elem1;
-            //меняем местами строки
-            let row1 = document.getElementById(id1);
-            let row2 = document.getElementById(id2);
-            table.insertBefore(row2, row1);
-            return;
-        }
     }
 }
